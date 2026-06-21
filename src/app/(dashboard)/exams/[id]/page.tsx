@@ -144,10 +144,38 @@ export default function ExamResultsPage() {
     if (!selectedSubjectId) return
     const fetchResults = async () => {
       try {
-        const res = await fetch(`/api/exams/${examId}`)
-        if (!res.ok) throw new Error("Failed to fetch results")
-        const json = await res.json()
+        const [examRes, classStudentsRes] = await Promise.all([
+          fetch(`/api/exams/${examId}`),
+          selectedClassId ? fetch(`/api/students?classId=${selectedClassId}`) : Promise.resolve(null),
+        ])
+        if (!examRes.ok) throw new Error("Failed to fetch results")
+        const json = await examRes.json()
         const allResults: ExamResultItem[] = json.results ?? []
+
+        const classStudentList: Student[] = classStudentsRes?.ok ? await classStudentsRes.json() : []
+        const studentIdsInClass = new Set(classStudentList.map((s) => s.id))
+
+        const existingStudentIds = new Set(allResults.map((r) => r.studentId))
+        for (const student of classStudentList) {
+          if (!existingStudentIds.has(student.id)) {
+            allResults.push({
+              examId,
+              studentId: student.id,
+              classId: selectedClassId,
+              subjectId: selectedSubjectId,
+              test1: 0,
+              test2: 0,
+              assignment: 0,
+              examination: 0,
+              total: 0,
+              grade: "",
+              position: null,
+              remarks: "",
+              isApproved: false,
+            })
+          }
+        }
+
         setResults(allResults)
       } catch {
         toast({ title: "Error", description: "Failed to load results", variant: "destructive" })
