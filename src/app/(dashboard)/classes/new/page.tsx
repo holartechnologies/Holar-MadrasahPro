@@ -31,20 +31,6 @@ import {
 import { useToast } from "@/components/ui/toaster"
 import { ArrowLeft, Save, Loader2 } from "lucide-react"
 
-const CLASS_NAMES = [
-  "Tahfiz 1",
-  "Tahfiz 2",
-  "Tahfiz 3",
-  "Ibtidaiyyah 1",
-  "Ibtidaiyyah 2",
-  "I'dadiyyah 1",
-  "I'dadiyyah 2",
-  "I'dadiyyah 3",
-  "Thanawiyyah 1",
-  "Thanawiyyah 2",
-  "Thanawiyyah 3",
-] as const
-
 function generateCode(name: string): string {
   const parts = name.split(" ")
   if (parts.length < 2) return name.substring(0, 4).toUpperCase()
@@ -155,21 +141,11 @@ export default function NewClassPage() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid gap-6 sm:grid-cols-2">
               <FormField label="Class Name" error={errors.name?.message} required>
-                <Select
+                <Input
                   value={selectedName}
-                  onValueChange={(value) => setValue("name", value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select class name" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CLASS_NAMES.map((name) => (
-                      <SelectItem key={name} value={name}>
-                        {name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  onChange={(e) => setValue("name", e.target.value)}
+                  placeholder="e.g. Tahfiz 1, Ibtidaiyyah 2"
+                />
               </FormField>
 
               <FormField label="Class Code" error={errors.code?.message} required>
